@@ -1,0 +1,113 @@
+---
+# tasks file for prometheus_monitoring
+- name: Create Prometheus user
+  ansible.builtin.user:
+    name: prometheus
+    shell: /bin/false
+    create_home: false
+  become: true
+
+- name: Create Prometheus etc directory
+  ansible.builtin.file:
+    path: /etc/prometheus
+    state: directory
+    mode: '0755'
+    owner: prometheus
+    group: prometheus
+  become: true
+
+- name: Create Prometheus /var/lib directory
+  ansible.builtin.file:
+    path: /var/lib/prometheus
+    state: directory
+    mode: '0755'
+    owner: prometheus
+    group: prometheus
+  become: true
+
+- name: Download Prometheus tar file
+  ansible.builtin.get_url:
+    url: "https://github.com/prometheus/prometheus/releases/download/{{ prometheus_version }}"
+    dest: /tmp/
+    timeout: 60
+  
+- name: Create Prometheus files directory
+  ansible.builtin.file:
+    path: /tmp/prometheus-files
+    state: directory
+    mode: '0755'
+  become: true
+
+- name: Unarchive Prometheus files
+  ansible.builtin.unarchive:
+    src: /tmp/prometheus-2.22.0.linux-amd64.tar.gz
+    dest: /tmp/prometheus-files
+    remote_src: yes
+  become: true
+
+- name: Copy Prometheus binary to /usr/local/bin
+  ansible.builtin.copy:
+    src: /tmp/prometheus-files/prometheus-2.22.0.linux-amd64/prometheus
+    dest: /usr/local/bin
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
+    remote_src: yes
+  become: true
+
+- name: Copy Promtool binary to /usr/local/bin
+  ansible.builtin.copy:
+    src: /tmp/prometheus-files/prometheus-2.22.0.linux-amd64/promtool
+    dest: /usr/local/bin
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
+    remote_src: yes
+  become: true
+
+- name: Move Prometheus console files to /etc/prometheus
+  ansible.builtin.copy:
+    src: /tmp/prometheus-files/prometheus-2.22.0.linux-amd64/consoles/
+    dest: /etc/prometheus
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
+    remote_src: yes
+  become: true
+
+- name: Move Prometheus console library files to /etc/prometheus
+  ansible.builtin.copy:
+    src: /tmp/prometheus-files/prometheus-2.22.0.linux-amd64/console_libraries/
+    dest: /etc/prometheus
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
+    remote_src: yes
+  become: true
+
+- name: Move Prometheus configuration file from the local machine to /etc/prometheus
+  ansible.builtin.copy:
+    src: prometheus.yml
+    dest: /etc/prometheus
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
+  become: true
+
+- name: Move Prometheus Systemd unit file to /etc/systemd/system
+  ansible.builtin.copy:
+    src: prometheus.service
+    dest: /etc/systemd/system
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
+  become: true
+
+- name: Reload systemd
+  command: systemctl daemon-reload
+  become: true
+
+- name: Enable and start Prometheus daemon
+  ansible.builtin.service:
+    name: prometheus
+    state: started
