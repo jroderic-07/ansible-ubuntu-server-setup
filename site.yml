@@ -1,0 +1,5 @@
+---
+- hosts: linux-server
+  name: test 
+  roles:
+    - system_hardening
