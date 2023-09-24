@@ -1,5 +1,10 @@
 ---
 - hosts: linux-server
-  name: test 
+  name: harden linux server
+  roles:
+    - system_hardening
+
+- hosts: linux-server-post-hardening
+  name: install prometheus monitoring on linux server
   roles:
     - prometheus_monitoring

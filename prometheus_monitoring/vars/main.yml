@@ -1,3 +1,5 @@
 ---
 # vars file for prometheus_monitoring
 prometheus_version: "v2.47.0/prometheus-2.47.0.linux-arm64.tar.gz" 
+prometheus_tar_name: "prometheus-2.47.0.linux-arm64.tar.gz"
+prometheus_version_name: "prometheus-2.47.0.linux-arm64"
