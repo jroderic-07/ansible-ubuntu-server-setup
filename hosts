@@ -1,5 +1,2 @@
 [linux-server]
-ubuntu@192.168.0.72 
-
-[linux-server-post-hardening]
 ubuntu@192.168.0.72 ansible_port=3333

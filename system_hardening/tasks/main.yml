@@ -31,21 +31,24 @@
   become: true
 
 - name: Change SSH port in SSHD configuration file
-  ansible.builtin.lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: "^Port"
-    line: "Port 3333"
+  ansible.builtin.copy:
+    src: ssh.socket.d
+    dest: /etc/systemd/system/
   become: true
 
 - name: Disable password login in SSHD configuration file
   ansible.builtin.lineinfile:
-    path: /etc/ssh/sshd_config
+    path: /etc/ssh/sshd_config.d/50-cloud-init.conf
     regexp: "^PasswordAuthentication yes"
     line: "PasswordAuthentication no"
   become: true
 
+- name: Reload daemon
+  ansible.builtin.command: systemctl daemon-reload
+  become: true
+
 - name: Restart SSH service
   ansible.builtin.service:
-    name: sshd
+    name: ssh
     state: restarted
   become: true
